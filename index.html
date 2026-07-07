@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academic Affairs Dashboard</title>
-    
+
     <!-- Flatpickr (Premium Datetime Picker) CSS & Themes -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-    
+
     <style>
         :root {
             --bg-color: #f5f7fb;
@@ -617,16 +617,16 @@
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // ===================================================
-        // ⚠️ INSERT YOUR PERSONAL FIREBASE CONFIGURATION HERE ⚠️
+        // ⚠️ YOUR PERSONAL FIREBASE CONFIGURATION (ACTIVE!) ⚠️
         // ===================================================
-      const firebaseConfig = {
-  apiKey: "AIzaSyB9Lr6v8qpRXm5WyLOaOVMGRq5VthcL4cg",
-  authDomain: "ywl-calendar.firebaseapp.com",
-  projectId: "ywl-calendar",
-  storageBucket: "ywl-calendar.firebasestorage.app",
-  messagingSenderId: "842131871985",
-  appId: "1:842131871985:web:6656f113be97a92ebcb150",
-  measurementId: "G-FBK127312X"
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9Lr6v8qpRXm5WyLOaOVMGrq5VthcL4cg",
+            authDomain: "ywl-calendar.firebaseapp.com",
+            projectId: "ywl-calendar",
+            storageBucket: "ywl-calendar.firebasestorage.app",
+            messagingSenderId: "842131871985",
+            appId: "1:842131871985:web:6656f113be97a92ebcb150",
+            measurementId: "G-FBK127312X"
         };
 
         // Initialize Firebase
@@ -635,7 +635,7 @@
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
         } catch (e) {
-            console.error("Firebase initialization deferred. Please set your config credentials above.", e);
+            console.error("Firebase initialization failed.", e);
         }
 
         // --- Core UI Variables ---
