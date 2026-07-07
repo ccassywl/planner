@@ -1,7 +1,6 @@
 {
-  "short_name": "YWL Schedule",
-  "name": "Academic Affairs Dashboard",
-  "description": "學務處個人日程與工作優先級看板",
+  "short_name": "學務日程",
+  "name": "Academic Affairs Priorities Dashboard",
   "icons": [
     {
       "src": "icon-192.png",
@@ -18,5 +17,5 @@
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "display": "standalone",
-  "orientation": "any"
+  "orientation": "portrait"
 }
