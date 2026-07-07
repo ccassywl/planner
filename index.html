@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Affairs Dashboard</title>
+    
+    <!-- Flatpickr (Premium Datetime Picker) CSS & Themes -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+    
+    <style>
+        :root {
+            --bg-color: #f5f7fb;
+            --sidebar-width: 350px;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+
+            /* Priority Tiers */
+            --tier-1-bg: #fff1f2;
+            --tier-1-border: #fecdd3;
+            --tier-1-color: #e11d48;
+
+            --tier-2-bg: #fffbeb;
+            --tier-2-border: #fde68a;
+            --tier-2-color: #d97706;
+
+            --tier-3-bg: #f0fdf4;
+            --tier-3-border: #bbf7d0;
+            --tier-3-color: #16a34a;
+
+            /* Type Badges */
+            --badge-meeting: #eff6ff;
+            --badge-meeting-text: #2563eb;
+            --badge-deadline: #fff1f2;
+            --badge-deadline-text: #e11d48;
+            --badge-event: #f5f3ff;
+            --badge-event-text: #7c3aed;
+            --badge-admin: #f0fdfa;
+            --badge-admin-text: #0d9488;
+            --badge-others: #f1f5f9;
+            --badge-others-text: #475569;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        /* Sidebar for Input - Premium Dark Navy Theme */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #0f172a;
+            color: #f1f5f9;
+            padding: 24px;
+            border-right: 1px solid #1e293b;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: margin-left 0.3s ease, opacity 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        body.sidebar-hidden .sidebar {
+            margin-left: calc(-1 * var(--sidebar-width) - 48px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Main Display for 7-inch monitor */
+        .main-display {
+            flex-grow: 1;
+            padding: 24px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Top Header Navigation Styling */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .toggle-btn {
+            background-color: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-light);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: background 0.2s;
+            width: auto;
+        }
+
+        .toggle-btn:hover {
+            background-color: #f8fafc;
+        }
+
+        .main-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Live Clock Widget */
+        .live-clock {
+            background-color: #0f172a;
+            color: #f59e0b;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            letter-spacing: 1px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* Stat Badges */
+        .stat-badge {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 9999px;
+        }
+
+        .stat-badge.urgent {
+            background-color: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .stat-badge.active {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        /* Forms Elements */
+        h2.sidebar-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            background-color: #1e293b;
+            color: #ffffff;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #38bdf8;
+            background-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        /* Custom style to override Flatpickr dark inputs nicely */
+        .flatpickr-input {
+            cursor: pointer;
+        }
+
+        .add-task-btn {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.95rem;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .add-task-btn:hover {
+            background-color: #0ea5e9;
+            transform: translateY(-1px);
+        }
+
+        /* Filters/Shortlists Sections */
+        .filter-section {
+            background-color: #ffffff;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            min-width: 90px;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            background-color: #f1f5f9;
+            color: var(--text-secondary);
+            border: 1px solid #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* Hover states for filters */
+        .filter-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* High-contrast colorful filter pill behaviors to prevent losing color */
+        /* Urgency Filters Styling */
+        #urgencyFilters .filter-pill[data-filter="all"].active { background-color: #0f172a; border-color: #0f172a; color: #ffffff; }
+        #urgencyFilters .filter-pill[data-filter="1"] { border-color: var(--tier-1-border); color: var(--tier-1-color); background-color: var(--tier-1-bg); }
+        #urgencyFilters .filter-pill[data-filter="1"].active { background-color: var(--tier-1-color); border-color: var(--tier-1-color); color: #ffffff; }
+        #urgencyFilters .filter-pill[data-filter="2"] { border-color: var(--tier-2-border); color: var(--tier-2-color); background-color: var(--tier-2-bg); }
+        #urgencyFilters .filter-pill[data-filter="2"].active { background-color: var(--tier-2-color); border-color: var(--tier-2-color); color: #ffffff; }
+        #urgencyFilters .filter-pill[data-filter="3"] { border-color: var(--tier-3-border); color: var(--tier-3-color); background-color: var(--tier-3-bg); }
+        #urgencyFilters .filter-pill[data-filter="3"].active { background-color: var(--tier-3-color); border-color: var(--tier-3-color); color: #ffffff; }
+
+        /* Type Filters Styling */
+        #typeFilters .filter-pill[data-filter="all"].active { background-color: #0f172a; border-color: #0f172a; color: #ffffff; }
+        #typeFilters .filter-pill[data-filter="Meeting"] { border-color: #bfdbfe; color: var(--badge-meeting-text); background-color: var(--badge-meeting); }
+        #typeFilters .filter-pill[data-filter="Meeting"].active { background-color: var(--badge-meeting-text); border-color: var(--badge-meeting-text); color: #ffffff; }
+        #typeFilters .filter-pill[data-filter="Deadline"] { border-color: #fecdd3; color: var(--badge-deadline-text); background-color: var(--badge-deadline); }
+        #typeFilters .filter-pill[data-filter="Deadline"].active { background-color: var(--badge-deadline-text); border-color: var(--badge-deadline-text); color: #ffffff; }
+        #typeFilters .filter-pill[data-filter="Event"] { border-color: #ddd6fe; color: var(--badge-event-text); background-color: var(--badge-event); }
+        #typeFilters .filter-pill[data-filter="Event"].active { background-color: var(--badge-event-text); border-color: var(--badge-event-text); color: #ffffff; }
+        #typeFilters .filter-pill[data-filter="Admin Task"] { border-color: #99f6e4; color: var(--badge-admin-text); background-color: var(--badge-admin); }
+        #typeFilters .filter-pill[data-filter="Admin Task"].active { background-color: var(--badge-admin-text); border-color: var(--badge-admin-text); color: #ffffff; }
+        #typeFilters .filter-pill[data-filter="Others"] { border-color: #cbd5e1; color: var(--badge-others-text); background-color: var(--badge-others); }
+        #typeFilters .filter-pill[data-filter="Others"].active { background-color: var(--badge-others-text); border-color: var(--badge-others-text); color: #ffffff; }
+
+        /* Task Cards Layout Grid */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        /* Individual Card Design with Color-Coded Borders */
+        .task-card {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        /* Vibrant Tier-Based Card Indicator Borders */
+        .task-card.tier-1-card { border-left: 6px solid var(--tier-1-color); }
+        .task-card.tier-2-card { border-left: 6px solid var(--tier-2-color); }
+        .task-card.tier-3-card { border-left: 6px solid var(--tier-3-color); }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Type Pill Badge styles */
+        .badge-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 9999px;
+        }
+
+        .badge-type.meeting { background-color: var(--badge-meeting); color: var(--badge-meeting-text); }
+        .badge-type.deadline { background-color: var(--badge-deadline); color: var(--badge-deadline-text); }
+        .badge-type.event { background-color: var(--badge-event); color: var(--badge-event-text); }
+        .badge-type.admin-task { background-color: var(--badge-admin); color: var(--badge-admin-text); }
+        .badge-type.others { background-color: var(--badge-others); color: var(--badge-others-text); }
+
+        /* Priority Tier Pill badge styles - ENLARGED */
+        .badge-tier {
+            font-size: 1.05rem; 
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+
+        .badge-tier.tier-1 { background-color: var(--tier-1-bg); border-color: var(--tier-1-border); color: var(--tier-1-color); }
+        .badge-tier.tier-2 { background-color: var(--tier-2-bg); border-color: var(--tier-2-border); color: var(--tier-2-color); }
+        .badge-tier.tier-3 { background-color: var(--tier-3-bg); border-color: var(--tier-3-border); color: var(--tier-3-color); }
+
+        .task-title {
+            font-size: 1.7rem; 
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 4px 0 0 0;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        /* Date details row - ENLARGED */
+        .task-date-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem; 
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .task-date-row svg {
+            width: 24px;
+            height: 24px;
+            color: var(--text-muted);
+        }
+
+        /* Dynamic countdown status - ENLARGED & COLOR CODED */
+        .task-countdown-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-countdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.15rem; 
+            font-weight: 800;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+        }
+
+        /* Dynamic Color Codes for Countdown States */
+        .badge-countdown.countdown-urgent {
+            background-color: #ffe4e6;
+            color: #e11d48;
+            border-color: #fecdd3;
+        }
+        .badge-countdown.countdown-upcoming {
+            background-color: #fffbeb;
+            color: #d97706;
+            border-color: #fde68a;
+        }
+        .badge-countdown.countdown-normal {
+            background-color: #f1f5f9;
+            color: #475569;
+            border-color: #e2e8f0;
+        }
+
+        .badge-countdown svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Complete Button styling */
+        .complete-task-btn {
+            width: 100%;
+            background-color: #f1f5f9;
+            color: var(--text-secondary);
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .complete-task-btn:hover {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+        }
+
+        /* Custom Override for Flatpickr Dark Popover Calendar styles */
+        .flatpickr-calendar {
+            background: #1e293b !important;
+            border: 1px solid #334155 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
+        }
+        .flatpickr-calendar .flatpickr-months {
+            background: #0f172a !important;
+        }
+        .flatpickr-day.selected {
+            background: #38bdf8 !important;
+            border-color: #38bdf8 !important;
+        }
+        .flatpickr-time {
+            border-top: 1px solid #334155 !important;
+        }
+
+        /* Responsive styling */
+        @media (max-width: 992px) {
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-light);
+            }
+            .main-display {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Input Side Panel - Sleek Dark Navy -->
+    <div class="sidebar" id="sidebarPanel">
+        <h2 class="sidebar-title">Add Event / Task</h2>
+        <form id="taskForm">
+            <div class="form-group">
+                <label for="title">Title / Name</label>
+                <input type="text" id="title" required placeholder="e.g., panel meeting">
+            </div>
+
+            <div class="form-group">
+                <label for="datetime">Scheduled Date & Time</label>
+                <div style="position: relative;">
+                    <input type="text" id="datetime" required placeholder="Select Date & Time..." style="cursor: pointer; padding-right: 40px;">
+                    <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #94a3b8;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type">
+                    <option value="Meeting">Meeting</option>
+                    <option value="Deadline">Deadline</option>
+                    <option value="Event">Event</option>
+                    <option value="Admin Task">Admin Task</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority Tier</label>
+                <select id="priority">
+                    <option value="1">Tier 1 - Critical</option>
+                    <option value="2">Tier 2 - Important</option>
+                    <option value="3">Tier 3 - Routine</option>
+                </select>
+            </div>
+
+            <button type="submit" class="add-task-btn">Add to Planner</button>
+        </form>
+    </div>
+
+    <!-- Main Workspace (Optimized for 7-inch visual outputs) -->
+    <div class="main-display">
+
+        <!-- Header Bar -->
+        <div class="header-bar">
+            <div class="header-left">
+                <button class="toggle-btn" id="toggleSidebarBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+                    <span id="toggleText">Hide Panel</span>
+                </button>
+                <h1 class="main-title">Academic Priorities</h1>
+            </div>
+
+            <div class="header-right">
+                <!-- Clock widget -->
+                <div class="live-clock" id="liveClock">00:00:00</div>
+                <!-- Dynamic stat counters -->
+                <div class="stat-badge urgent" id="urgentCount">Urgent: 0</div>
+                <div class="stat-badge active" id="activeCount">Active: 0</div>
+            </div>
+        </div>
+
+        <!-- Filter Controls (Dynamic Colorful Pill Buttons) -->
+        <div class="filter-section">
+            <!-- Filter by Urgency -->
+            <div class="filter-group">
+                <span class="filter-label">Urgency:</span>
+                <div class="filter-pills" id="urgencyFilters">
+                    <button class="filter-pill active" data-filter="all">All</button>
+                    <button class="filter-pill" data-filter="1">Tier 1 - Critical</button>
+                    <button class="filter-pill" data-filter="2">Tier 2 - Important</button>
+                    <button class="filter-pill" data-filter="3">Tier 3 - Routine</button>
+                </div>
+            </div>
+            <!-- Filter by Type -->
+            <div class="filter-group">
+                <span class="filter-label">Type:</span>
+                <div class="filter-pills" id="typeFilters">
+                    <button class="filter-pill active" data-filter="all">All</button>
+                    <button class="filter-pill" data-filter="Meeting">Meeting</button>
+                    <button class="filter-pill" data-filter="Deadline">Deadline</button>
+                    <button class="filter-pill" data-filter="Event">Event</button>
+                    <button class="filter-pill" data-filter="Admin Task">Admin Task</button>
+                    <button class="filter-pill" data-filter="Others">Others</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards Container Grid -->
+        <div class="task-grid" id="taskContainer">
+            <p style="color: var(--text-muted); font-size: 1.1rem;">Setting up connection to database...</p>
+        </div>
+    </div>
+
+    <!-- Firebase & Flatpickr Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh.js"></script>
+
+    <!-- Firebase SDK (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } 
+        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ===================================================
+        // ⚠️ INSERT YOUR PERSONAL FIREBASE CONFIGURATION HERE ⚠️
+        // ===================================================
+      const firebaseConfig = {
+  apiKey: "AIzaSyB9Lr6v8qpRXm5WyLOaOVMGRq5VthcL4cg",
+  authDomain: "ywl-calendar.firebaseapp.com",
+  projectId: "ywl-calendar",
+  storageBucket: "ywl-calendar.firebasestorage.app",
+  messagingSenderId: "842131871985",
+  appId: "1:842131871985:web:6656f113be97a92ebcb150",
+  measurementId: "G-FBK127312X"
+        };
+
+        // Initialize Firebase
+        let app, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase initialization deferred. Please set your config credentials above.", e);
+        }
+
+        // --- Core UI Variables ---
+        const taskForm = document.getElementById('taskForm');
+        const taskContainer = document.getElementById('taskContainer');
+        const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+        const toggleText = document.getElementById('toggleText');
+        const liveClock = document.getElementById('liveClock');
+        const urgentCountBadge = document.getElementById('urgentCount');
+        const activeCountBadge = document.getElementById('activeCount');
+
+        // Current Filters States
+        let currentUrgencyFilter = 'all';
+        let currentTypeFilter = 'all';
+        let allTasksLocal = []; // Holds current task snapshots for quick client-side refiltering
+
+        // --- Initialize Flatpickr with 5-minute increments & Chinese Locale ---
+        flatpickr("#datetime", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            minuteIncrement: 5, // Enforces 5-minute time adjustments!
+            locale: "zh",       // Matches Chinese locale formatting
+            defaultDate: new Date(),
+            disableMobile: true // Prevents browser calendar defaults to preserve custom settings
+        });
+
+        // --- Live Clock Widget ---
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            liveClock.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // --- Sidebar Collapsing (Hide Panel Feature) ---
+        toggleSidebarBtn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-hidden');
+            if (document.body.classList.contains('sidebar-hidden')) {
+                toggleText.textContent = "Show Panel";
+            } else {
+                toggleText.textContent = "Hide Panel";
+            }
+        });
+
+        // --- Event Type Icon Selector helper ---
+        function getTypeIcon(type) {
+            switch(type) {
+                case 'Meeting':
+                    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+                case 'Deadline':
+                    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+                case 'Event':
+                    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22V2"/><path d="M7 22V2"/><path d="M12 2v20"/></svg>`;
+                case 'Admin Task':
+                    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`;
+                default: // Others
+                    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>`;
+            }
+        }
+
+        // Formats Date to: 7月7日週二 • 下午05:15
+        function formatCardDate(dateTimeStr) {
+            const date = new Date(dateTimeStr);
+            if (isNaN(date)) return dateTimeStr;
+
+            const optionsMonthDay = { month: 'numeric', day: 'numeric' };
+            const optionsWeekday = { weekday: 'short' };
+
+            const monthDayStr = date.toLocaleDateString('zh-HK', optionsMonthDay); // e.g., "7月7日"
+            const weekdayStr = date.toLocaleDateString('zh-HK', optionsWeekday); // e.g., "週二"
+
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const period = hours >= 12 ? '下午' : '上午';
+
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            const formattedHours = String(hours).padStart(2, '0');
+
+            return `${monthDayStr}${weekdayStr} • ${period}${formattedHours}:${minutes}`;
+        }
+
+        // Dynamically calculates relative text for deadlines: "In 2 Days" or similar countdown badges
+        function getRelativeTimeBadgeText(dateTimeStr) {
+            const now = new Date();
+            const target = new Date(dateTimeStr);
+            const diffMs = target - now;
+            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return "Scheduled"; 
+            } else if (diffDays === 0) {
+                return "Today";
+            } else if (diffDays === 1) {
+                return "In 1 Day";
+            } else {
+                return `In ${diffDays} Days`;
+            }
+        }
+
+        // Dynamic classes to color countdown badges based on urgency
+        function getCountdownClass(dateTimeStr) {
+            const now = new Date();
+            const target = new Date(dateTimeStr);
+            const diffMs = target - now;
+            const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+            if (diffDays <= 1) {
+                return "countdown-urgent";   // Red highlight
+            } else if (diffDays <= 3) {
+                return "countdown-upcoming"; // Orange highlight
+            } else {
+                return "countdown-normal";   // Gray default
+            }
+        }
+
+        // --- Form Submission / Database Save ---
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!db) {
+                alert("Please configure your correct Firebase environment settings in the code.");
+                return;
+            }
+
+            const title = document.getElementById('title').value;
+            const datetime = document.getElementById('datetime').value;
+            const type = document.getElementById('type').value;
+            const priority = document.getElementById('priority').value;
+
+            try {
+                await addDoc(collection(db, "tasks"), {
+                    title: title,
+                    datetime: datetime,
+                    type: type,
+                    priority: parseInt(priority),
+                    createdAt: new Date()
+                });
+                taskForm.reset();
+            } catch (error) {
+                console.error("Error writing to database: ", error);
+            }
+        });
+
+        // --- Rendering Engine with Dynamic Shortlists Filters & Color Border Coding ---
+        function renderTasks() {
+            taskContainer.innerHTML = '';
+
+            // 1. Calculate and update dashboard stats
+            const activeCount = allTasksLocal.length;
+            const urgentCount = allTasksLocal.filter(t => t.priority === 1).length;
+
+            activeCountBadge.textContent = `Active: ${activeCount}`;
+            urgentCountBadge.textContent = `Urgent: ${urgentCount}`;
+
+            // 2. Apply combined filters
+            let filteredTasks = allTasksLocal;
+
+            if (currentUrgencyFilter !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.priority === parseInt(currentUrgencyFilter));
+            }
+
+            if (currentTypeFilter !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.type === currentTypeFilter);
+            }
+
+            // 3. Render filtered elements to grid
+            if (filteredTasks.length === 0) {
+                taskContainer.innerHTML = `<p style="color: var(--text-muted); font-size: 1.1rem; grid-column: 1 / -1;">No priorities matching selected filters.</p>`;
+                return;
+            }
+
+            filteredTasks.forEach((taskDoc) => {
+                const task = taskDoc;
+                const taskId = task.id;
+
+                // Determine Tier badge content and color settings
+                let tierText = "Tier 3";
+                let tierClass = "tier-3";
+                let tierCardClass = "tier-3-card";
+                if (task.priority === 1) {
+                    tierText = "Tier 1 - Critical";
+                    tierClass = "tier-1";
+                    tierCardClass = "tier-1-card";
+                } else if (task.priority === 2) {
+                    tierText = "Tier 2";
+                    tierClass = "tier-2";
+                    tierCardClass = "tier-2-card";
+                }
+
+                // Format Type classes
+                const typeClass = task.type.toLowerCase().replace(" ", "-");
+                const formattedDate = formatCardDate(task.datetime);
+                const relativeTime = getRelativeTimeBadgeText(task.datetime);
+                const countdownClass = getCountdownClass(task.datetime);
+
+                const card = document.createElement('div');
+                card.className = `task-card ${tierCardClass}`;
+                card.innerHTML = `
+                    <div class="card-top">
+                        <span class="badge-type ${typeClass}">
+                            ${getTypeIcon(task.type)}
+                            ${task.type}
+                        </span>
+                        <span class="badge-tier ${tierClass}">${tierText}</span>
+                    </div>
+
+                    <h3 class="task-title">${task.title}</h3>
+
+                    <!-- Date section - Enlarged -->
+                    <div class="task-date-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                        <span>${formattedDate}</span>
+                    </div>
+
+                    <!-- Countdown status section - Enlarged & Urgency Color-Coded -->
+                    <div class="task-countdown-row">
+                        <span class="badge-countdown ${countdownClass}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            ${relativeTime}
+                        </span>
+                    </div>
+
+                    <button class="complete-task-btn" data-id="${taskId}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Complete Task
+                    </button>
+                `;
+                taskContainer.appendChild(card);
+            });
+
+            // Re-attach delete action handlers
+            document.querySelectorAll('.complete-task-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    try {
+                        await deleteDoc(doc(db, "tasks", id));
+                    } catch (err) {
+                        console.error("Failed to delete completed task: ", err);
+                    }
+                });
+            });
+        }
+
+        // --- Filter Shortlists Listeners Setup ---
+        document.querySelectorAll('#urgencyFilters .filter-pill').forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                document.querySelectorAll('#urgencyFilters .filter-pill').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+                currentUrgencyFilter = e.target.getAttribute('data-filter');
+                renderTasks();
+            });
+        });
+
+        document.querySelectorAll('#typeFilters .filter-pill').forEach(pill => {
+            pill.addEventListener('click', (e) => {
+                document.querySelectorAll('#typeFilters .filter-pill').forEach(p => p.classList.remove('active'));
+                e.target.classList.add('active');
+                currentTypeFilter = e.target.getAttribute('data-filter');
+                renderTasks();
+            });
+        });
+
+        // --- Firestore Real-time Sync ---
+        if (db) {
+            const q = query(collection(db, "tasks"), orderBy("priority", "asc"), orderBy("datetime", "asc"));
+            onSnapshot(q, (querySnapshot) => {
+                allTasksLocal = [];
+                querySnapshot.forEach((docSnap) => {
+                    allTasksLocal.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+                renderTasks();
+            }, (error) => {
+                console.error("Firebase sync failed: ", error);
+                taskContainer.innerHTML = `<p style="color: #e74c3c;">Connection error. Confirm that your Firebase rules permit reading.</p>`;
+            });
+        } else {
+            taskContainer.innerHTML = `
+                <div style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 20px; border-radius: 12px; color: #b45309; grid-column: 1/-1;">
+                    <h4 style="margin-top:0;">Firebase Credentials Required</h4>
+                    <p style="margin-bottom:0;">Please open your saved HTML file in a code editor and populate your personal Firebase configuration settings in the <code>&lt;script&gt;</code> block.</p>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
